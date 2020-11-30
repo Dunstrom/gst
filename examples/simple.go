@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/dunstrom/gst"
 	"github.com/lijo-jose/glib"
-	"github.com/lijo-jose/gst"
 )
 
 func checkElem(e *gst.Element, name string) {
@@ -18,8 +18,8 @@ func checkElem(e *gst.Element, name string) {
 func main() {
 	src := gst.ElementFactoryMake("videotestsrc", "VideoSrc")
 	checkElem(src, "videotestsrc")
-	//vsink := "autovideosink"
-	vsink := "xvimagesink"
+	vsink := "autovideosink"
+	//vsink := "xvimagesink"
 	sink := gst.ElementFactoryMake(vsink, "VideoSink")
 	checkElem(sink, vsink)
 
