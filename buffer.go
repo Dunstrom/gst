@@ -49,6 +49,10 @@ func NewBufferAllocate(size uint) *Buffer {
 	return buffer
 }
 
+func (this *Buffer) g() *C.GstBuffer {
+	return (*C.GstBuffer)(this.GstBuffer)
+}
+
 func (this *Buffer) GetSize() uint {
 	return (uint)(C.gst_buffer_get_size((*C.GstBuffer)(this.GstBuffer)))
 }
@@ -64,6 +68,14 @@ func (this *Buffer) MemSet(offset uint, val byte, size uint) int {
 func (this *Buffer) FillWithGoSlice(data []byte) int {
 	dataLength := uint(len(data))
 	return (int)(C.gst_buffer_fill((*C.GstBuffer)(this.GstBuffer), C.gsize(0), (C.gconstpointer)(C.CBytes(data)), C.gsize(dataLength)))
+}
+
+func (this *Buffer) ExtractAll() []byte {
+	var data []byte
+	p := C.CBytes(data)
+	defer C.free(p)
+	extracted := C.gst_buffer_extract(this.g(), C.gsize(0), (C.gpointer)(p), C.gsize(this.GetSize()))
+	return C.GoBytes(p, (C.int)(int(extracted)))
 }
 
 func (this *Buffer) Fill(offset uint, src unsafe.Pointer, size uint) int {
