@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/lijo-jose/gst"
+	"github.com/Dunstrom/gst"
 	"github.com/lijo-jose/gtk"
 )
 
