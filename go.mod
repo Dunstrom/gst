@@ -1,4 +1,4 @@
-module github.com/dunstrom/gst
+module github.com/Dunstrom/gst
 
 go 1.12
 
