@@ -18,7 +18,7 @@ func TestGetBuffer(t *testing.T) {
 	buffer := NewBufferAllocate(uint(len(data)))
 	buffer.FillWithGoSlice(data)
 	sample := NewSample(buffer, NewCapsEmpty())
-	a.Equal(data, sample.GetBuffer().ExtractAll(), "Data read from sample not the same as what was written")
+	a.Equal(data, sample.GetBuffer().ExtractAll(10), "Data read from sample not the same as what was written")
 	sample.Unref()
 	buffer.Unref()
 }

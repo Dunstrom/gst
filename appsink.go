@@ -26,8 +26,8 @@ func (a *AppSink) PullSample() *Sample {
 	return (*Sample)(C.gst_app_sink_pull_sample(a.g()))
 }
 
-func (a *AppSink) Read() []byte {
+func (a *AppSink) Read(max uint) []byte {
 	sample := a.PullSample() // Blocks until something to read or EOF
 	buffer := sample.GetBuffer()
-	return buffer.ExtractAll()
+	return buffer.ExtractAll(max)
 }
