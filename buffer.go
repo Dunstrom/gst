@@ -70,8 +70,8 @@ func (this *Buffer) FillWithGoSlice(data []byte) int {
 	return (int)(C.gst_buffer_fill((*C.GstBuffer)(this.GstBuffer), C.gsize(0), (C.gconstpointer)(C.CBytes(data)), C.gsize(dataLength)))
 }
 
-func (this *Buffer) ExtractAll(max uint) []byte {
-	data := make([]byte, max)
+func (this *Buffer) ExtractAll() []byte {
+	data := make([]byte, this.GetSize())
 	p := C.CBytes(data)
 	defer C.free(p)
 	extracted := C.gst_buffer_extract(this.g(), C.gsize(0), (C.gpointer)(p), C.gsize(this.GetSize()))

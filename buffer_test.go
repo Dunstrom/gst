@@ -12,6 +12,6 @@ func TestBufferExtract(t *testing.T) {
 	rand.Read(data)
 	buffer := NewBufferAllocate(uint(len(data)))
 	a.Equal(len(data), buffer.FillWithGoSlice(data), "All of the data was not written to the buffer")
-	a.Equal(data, buffer.ExtractAll(10000), "Filled and extracted data not the same")
+	a.Equal(data, buffer.ExtractAll(), "Filled and extracted data not the same")
 	buffer.Unref()
 }

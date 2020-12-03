@@ -20,7 +20,7 @@ func TestAppSink(t *testing.T) {
 	a.NotNil(sample, "Failed to get sample")
 	buffer := sample.GetBuffer()
 	a.NotNil(buffer, "Failed to get buffer")
-	data := buffer.ExtractAll(10000)
+	data := buffer.ExtractAll()
 	a.Greater(buffer.GetSize(), uint(0), "Size of buffer is not larger than 0")
 	a.Equal(buffer.GetSize(), uint(len(data)), "Size of buffer and data extracted does not match")
 	pipeline.SetState(STATE_NULL)
