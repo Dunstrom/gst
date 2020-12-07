@@ -1,5 +1,10 @@
 package gst
 
+/*
+#include <gst/gstsample.h>
+*/
+import "C"
+
 import (
 	"github.com/ziutek/glib"
 	"unsafe"
