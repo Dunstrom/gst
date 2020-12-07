@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lijo-jose/glib"
-	"github.com/lijo-jose/gst"
+	"github.com/Dunstrom/gst"
+	"github.com/ziutek/glib"
 )
 
 func checkElem(e *gst.Element, name string) {

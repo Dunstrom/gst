@@ -9,7 +9,7 @@ import "C"
 import (
 	"unsafe"
 
-	"github.com/lijo-jose/glib"
+	"github.com/ziutek/glib"
 )
 
 type State C.GstState
@@ -93,7 +93,7 @@ func (e *Element) LinkPads(pad_name string, dst *Element, dst_pad_name string) b
 }
 
 // https://developer.gnome.org/gstreamer/stable/GstElement.html#gst-element-send-event
-func (e *Element) SendEvent(event *Event) bool{
+func (e *Element) SendEvent(event *Event) bool {
 	return C.gst_element_send_event(e.g(), (*C.GstEvent)(event.GstEvent)) != 0
 }
 

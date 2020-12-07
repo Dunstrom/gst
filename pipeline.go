@@ -9,7 +9,7 @@ import "C"
 import (
 	"unsafe"
 
-	"github.com/lijo-jose/glib"
+	"github.com/ziutek/glib"
 )
 
 type Pipeline struct {
