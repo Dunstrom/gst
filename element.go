@@ -155,10 +155,6 @@ func (e *Element) GetBus() *Bus {
 	return b
 }
 
-func (e *Element) GetPropertyPointer(name string) C.gpointer {
-	e.GetProperty(name)
-}
-
 // TODO: Move ElementFactoryMake to element_factory.go
 func ElementFactoryMake(factory_name, name string) *Element {
 	fn := (*C.gchar)(C.CString(factory_name))
