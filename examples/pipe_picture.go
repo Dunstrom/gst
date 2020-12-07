@@ -4,7 +4,6 @@ import "C"
 import (
 	"fmt"
 	"os"
-	"reflect"
 	"time"
 
 	"github.com/Dunstrom/gst"
@@ -32,19 +31,18 @@ func main() {
 				fmt.Fprintln(os.Stderr, "Failed to create pipeline: ", err)
 				os.Exit(1)
 			}
-			fakeSink := pipeline.GetByName("fakesink")
-			//appSrc := &gst.AppSrc{picturePipeline.GetByName("appsrc")}
+			fakeSink := &gst.Sink{pipeline.GetByName("fakesink")}
+			appSrc := &gst.AppSrc{picturePipeline.GetByName("appsrc")}
 			if picturePipeline.SetState(gst.STATE_PLAYING) == gst.STATE_CHANGE_FAILURE {
 				fmt.Fprintln(os.Stderr, "Failed to start picture pipeline")
 				os.Exit(1)
 			}
-			sample := (*gst.Sample)(fakeSink.GetPropertyPointer("last-sample"))
+			sample := fakeSink.GetLastSample()
 			if sample == nil {
 				fmt.Fprintln(os.Stderr, "Failed to pull sample from fakesink")
+				continue
 			}
-			fmt.Fprintln(os.Stdout, "Sample type: ", reflect.TypeOf(sample))
-			fmt.Fprintln(os.Stdout, "sample: ", sample)
-			//appSrc.PushBuffer(sample.GetBuffer())
+			appSrc.PushBuffer(sample.GetBuffer())
 			i += 1
 			time.Sleep(time.Second * 8)
 		}
