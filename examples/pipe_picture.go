@@ -1,5 +1,6 @@
 package main
 
+import "C"
 import (
 	"fmt"
 	"os"
@@ -37,7 +38,7 @@ func main() {
 				fmt.Fprintln(os.Stderr, "Failed to start picture pipeline")
 				os.Exit(1)
 			}
-			sample := fakeSink.GetProperty("last-sample")
+			sample := (*gst.Sample)(fakeSink.GetPropertyPointer("last-sample"))
 			if sample == nil {
 				fmt.Fprintln(os.Stderr, "Failed to pull sample from fakesink")
 			}

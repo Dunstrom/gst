@@ -93,7 +93,7 @@ func (e *Element) LinkPads(pad_name string, dst *Element, dst_pad_name string) b
 }
 
 // https://developer.gnome.org/gstreamer/stable/GstElement.html#gst-element-send-event
-func (e *Element) SendEvent(event *Event) bool{
+func (e *Element) SendEvent(event *Event) bool {
 	return C.gst_element_send_event(e.g(), (*C.GstEvent)(event.GstEvent)) != 0
 }
 
@@ -153,6 +153,10 @@ func (e *Element) GetBus() *Bus {
 	b := new(Bus)
 	b.SetPtr(glib.Pointer(bus))
 	return b
+}
+
+func (e *Element) GetPropertyPointer(name string) C.gpointer {
+	e.GetProperty(name)
 }
 
 // TODO: Move ElementFactoryMake to element_factory.go
