@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Dunstrom/gst"
-	"github.com/lijo-jose/glib"
+	"github.com/ziutek/glib"
 )
 
 func main() {

@@ -13,7 +13,7 @@ import (
 	"syscall"
 
 	"github.com/Dunstrom/gst"
-	"github.com/lijo-jose/glib"
+	"github.com/ziutek/glib"
 )
 
 type Index struct {
