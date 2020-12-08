@@ -10,7 +10,7 @@ import (
 
 func takePicture(pipeline *gst.Pipeline, filename string) {
 	fmt.Fprintln(os.Stdout, "Setting up a picture pipeline")
-	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc num-buffers=1 ! jpegenc snapshot=1 ! filesink location=%s", filename))
+	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc ! pngenc snapshot=1 ! filesink location=%s", filename))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to create pipeline: ", err)
 		os.Exit(1)
@@ -23,7 +23,7 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 	}
 	fmt.Fprintln(os.Stdout, "Started the picture pipeline")
 	time.Sleep(time.Second * 2)
-	for i := 0; i < 10; i += 1 {
+	for {
 		fmt.Fprintln(os.Stdout, "Pulling a sample")
 		sample := fakeSink.GetLastSample()
 		if sample == nil {
@@ -35,13 +35,8 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 		fmt.Fprintf(os.Stdout, "Size of buffer in sample %v\n", buffer.GetSize())
 		appSrc.PushBuffer(buffer)
 		state, _, _ := pipeline.GetState(1000)
-		switch state {
-		case gst.STATE_PLAYING:
-			fmt.Fprintln(os.Stdout, "pipeline in playing state")
-		case gst.STATE_PAUSED:
-			fmt.Fprintln(os.Stdout, "pipeline in paused state")
-		default:
-			fmt.Fprintf(os.Stdout, "unknown state %v\n", state)
+		if state != gst.STATE_PLAYING {
+			break
 		}
 	}
 	fmt.Fprintf(os.Stdout, "Took picture of pipeline stored at %s\n", filename)
@@ -57,5 +52,5 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Failed to start pipeline")
 		os.Exit(1)
 	}
-	takePicture(pipeline, "picture.jpg")
+	takePicture(pipeline, "picture.png")
 }
