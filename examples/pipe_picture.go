@@ -23,7 +23,7 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 	}
 	fmt.Fprintln(os.Stdout, "Started the picture pipeline")
 	time.Sleep(time.Second * 2)
-	for i := 0; i < 100; i += 1 {
+	for i := 0; i < 2; i += 1 {
 		fmt.Fprintln(os.Stdout, "Pulling a sample")
 		sample := fakeSink.GetLastSample()
 		if sample == nil {
