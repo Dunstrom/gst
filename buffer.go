@@ -102,6 +102,12 @@ func (this *Buffer) SetOffsetEnd(value uint64) {
 	C._golang_gst_set_offset_end((*C.GstBuffer)(this.GstBuffer), C.guint64(value))
 }
 
+func (this *Buffer) DeepCopy() *Buffer {
+	buffer := new(Buffer)
+	buffer.GstBuffer = (*GstBufferStruct)(C.gst_buffer_copy_deep(this.g()))
+	return buffer
+}
+
 func (this *Buffer) Unref() {
 	C.gst_buffer_unref((*C.GstBuffer)(this.GstBuffer))
 }
