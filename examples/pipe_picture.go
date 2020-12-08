@@ -15,14 +15,14 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 		fmt.Fprintln(os.Stderr, "Failed to create pipeline: ", err)
 		os.Exit(1)
 	}
+	fakeSink := &gst.Sink{pipeline.GetByName("fakesink")}
+	appSrc := &gst.AppSrc{picturePipeline.GetByName("appsrc")}
 	if picturePipeline.SetState(gst.STATE_PLAYING) == gst.STATE_CHANGE_FAILURE {
 		fmt.Fprintln(os.Stderr, "Failed to start picture pipeline")
 		os.Exit(1)
 	}
 	fmt.Fprintln(os.Stdout, "Started the picture pipeline")
 	time.Sleep(time.Second * 2)
-	fakeSink := &gst.Sink{pipeline.GetByName("fakesink")}
-	appSrc := &gst.AppSrc{picturePipeline.GetByName("appsrc")}
 	for i := 0; i < 2; i += 1 {
 		fmt.Fprintln(os.Stdout, "Pulling a sample")
 		sample := fakeSink.GetLastSample()
@@ -33,7 +33,7 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 		buffer := sample.GetBuffer().DeepCopy()
 		fmt.Fprintf(os.Stdout, "Size of buffer in sample %v\n", buffer.GetSize())
 		fmt.Fprintln(os.Stdout, "Pushing the sample")
-		appSrc.Write(buffer.ExtractAll())
+		appSrc.PushBuffer(buffer)
 		state, _, _ := pipeline.GetState(1000)
 		if state != gst.STATE_PLAYING {
 			break
