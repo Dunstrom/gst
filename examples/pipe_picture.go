@@ -10,7 +10,7 @@ import (
 
 func takePicture(pipeline *gst.Pipeline, filename string) {
 	fmt.Fprintln(os.Stdout, "Setting up a picture pipeline")
-	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc ! pngenc snapshot=1 ! filesink location=%s", filename))
+	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc num-buffers=10 ! pngenc ! filesink location=%s", filename))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to create pipeline: ", err)
 		os.Exit(1)
