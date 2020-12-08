@@ -10,7 +10,7 @@ import (
 
 func takePicture(pipeline *gst.Pipeline, filename string) {
 	fmt.Fprintln(os.Stdout, "Setting up a picture pipeline")
-	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc num-buffers=10 ! videoconvert ! pngenc ! filesink location=%s", filename))
+	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc ! video/x-raw, format=RGB ! pngenc snapshot=1 ! filesink location=%s", filename))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to create pipeline: ", err)
 		os.Exit(1)
@@ -30,9 +30,9 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 			fmt.Fprintln(os.Stderr, "Failed to pull sample from fakesink")
 			return
 		}
-		fmt.Fprintln(os.Stdout, "Pushing the sample")
 		buffer := sample.GetBuffer().DeepCopy()
 		fmt.Fprintf(os.Stdout, "Size of buffer in sample %v\n", buffer.GetSize())
+		fmt.Fprintln(os.Stdout, "Pushing the sample")
 		appSrc.PushBuffer(buffer)
 		state, _, _ := pipeline.GetState(1000)
 		if state != gst.STATE_PLAYING {
