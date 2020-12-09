@@ -33,7 +33,11 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 		buffer := sample.GetBuffer().DeepCopy()
 		fmt.Fprintf(os.Stdout, "Size of buffer in sample %v\n", buffer.GetSize())
 		fmt.Fprintln(os.Stdout, "Pushing the sample")
-		appSrc.PushBuffer(buffer)
+		res := appSrc.PushBuffer(buffer)
+		if res != gst.GST_FLOW_OK {
+			fmt.Fprintf(os.Stdout, "Failed to push buffer with error code %d\n", res)
+		}
+		fmt.Fprintf(os.Stdout, "Pushed sample with res %d\n", res)
 		state, _, _ := pipeline.GetState(1000)
 		if state != gst.STATE_PLAYING {
 			break
