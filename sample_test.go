@@ -43,3 +43,7 @@ func TestGetCaps(t *testing.T) {
 	caps := sample.GetCaps()
 	assert.Equal(t, capsString, caps.String())
 }
+
+func TestGetBufferList(t *testing.T) {
+
+}
