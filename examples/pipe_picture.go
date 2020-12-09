@@ -26,6 +26,7 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 	for i := 0; i < 2; i += 1 {
 		fmt.Fprintln(os.Stdout, "Pulling a sample")
 		sample := fakeSink.GetLastSample()
+		fmt.Fprintf(os.Stdout, "Sample caps: %s\n", sample.GetCaps().String())
 		if sample == nil {
 			fmt.Fprintln(os.Stderr, "Failed to pull sample from fakesink")
 			return
