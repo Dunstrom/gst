@@ -14,13 +14,13 @@ func takePicture(srcPipeline *gst.Pipeline, filename string) {
 	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc max-bytes=0 ! video/x-raw, format=(string)RGB, width=(int)320, height=(int)240, framerate=(fraction)30/1, multiview-mode=(string)mono, pixel-aspect-ratio=(fraction)1/1, interlace-mode=(string)progressive  ! videoconvert ! pngenc snapshot=1 ! filesink location=%s", filename))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to create pipeline: ", err)
-		os.Exit(1)
+		return
 	}
 	fakeSink := &gst.Sink{srcPipeline.GetByName("fakesink")}
 	appSrc := &gst.AppSrc{picturePipeline.GetByName("appsrc")}
 	if picturePipeline.SetState(gst.STATE_PLAYING) == gst.STATE_CHANGE_FAILURE {
 		fmt.Fprintln(os.Stderr, "Failed to start picture pipeline")
-		os.Exit(1)
+		return
 	}
 
 	// Start the picture pipeline
@@ -33,7 +33,7 @@ func takePicture(srcPipeline *gst.Pipeline, filename string) {
 		sample := fakeSink.GetLastSample()
 		if sample == nil {
 			fmt.Fprintln(os.Stderr, "Failed to pull sample from fakesink")
-			os.Exit(1)
+			return
 		}
 		fmt.Fprintf(os.Stdout, "Sample caps: %s \n", sample.GetCaps().String())
 		bufferList := sample.GetBufferList()
@@ -52,7 +52,7 @@ func takePicture(srcPipeline *gst.Pipeline, filename string) {
 			time.Sleep(time.Millisecond * 100)
 		} else if res == gst.GST_FLOW_ERROR {
 			fmt.Fprintln(os.Stderr, "Error pushing the sample")
-			os.Exit(1)
+			return
 		} else {
 			fmt.Fprintf(os.Stderr, "Unknown return from PushBuffer %d \n", res)
 		}
@@ -64,7 +64,7 @@ func takePicture(srcPipeline *gst.Pipeline, filename string) {
 
 func main() {
 	fmt.Fprintln(os.Stdout, "Setting up source pipeline")
-	srcPipeline, err := gst.ParseLaunch("videotestsrc pattern=black ! tee name=t ! fakesink name=fakesink enable-last-sample=1 t. ! autovideosink") // video/x-raw, framerate=(fraction)5/1 ! fakesink name=fakesink enable-last-sample=1") // t. ! queue ! videoflip method=clockwise ! autovideosink") //")
+	srcPipeline, err := gst.ParseLaunch("videotestsrc ! tee name=t ! queue ! autovideosink t. ! queue ! fakesink name=fakesink enable-last-sample=1") // video/x-raw, framerate=(fraction)5/1 ! fakesink name=fakesink enable-last-sample=1") // t. ! queue ! videoflip method=clockwise ! autovideosink") //")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to create source pipeline: ", err)
 		os.Exit(1)
