@@ -11,7 +11,8 @@ import (
 
 func takePicture(srcPipeline *gst.Pipeline, filename string) {
 	fmt.Fprintln(os.Stdout, "Setting up a picture pipeline")
-	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc max-bytes=0 ! video/x-raw, format=(string)RGB, width=(int)320, height=(int)240, framerate=(fraction)30/1, multiview-mode=(string)mono, pixel-aspect-ratio=(fraction)1/1, interlace-mode=(string)progressive  ! videoconvert ! pngenc snapshot=1 ! filesink location=%s", filename))
+	caps := "video/x-raw, format=(string)RGB, width=(int)320, height=(int)240, framerate=(fraction)30/1, multiview-mode=(string)mono, pixel-aspect-ratio=(fraction)1/1, interlace-mode=(string)progressive"
+	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc max-bytes=0 ! %s ! videoconvert ! pngenc snapshot=1 ! filesink location=%s", caps, filename))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to create pipeline: ", err)
 		return
@@ -64,7 +65,8 @@ func takePicture(srcPipeline *gst.Pipeline, filename string) {
 
 func main() {
 	fmt.Fprintln(os.Stdout, "Setting up source pipeline")
-	srcPipeline, err := gst.ParseLaunch("videotestsrc ! tee name=t ! queue ! autovideosink t. ! queue ! fakesink name=fakesink enable-last-sample=1") // video/x-raw, framerate=(fraction)5/1 ! fakesink name=fakesink enable-last-sample=1") // t. ! queue ! videoflip method=clockwise ! autovideosink") //")
+	caps := "video/x-raw, format=(string)RGB, width=(int)320, height=(int)240, framerate=(fraction)30/1, multiview-mode=(string)mono, pixel-aspect-ratio=(fraction)1/1, interlace-mode=(string)progressive"
+	srcPipeline, err := gst.ParseLaunch(fmt.Sprintf("videotestsrc ! %s ! tee name=t ! queue ! autovideosink t. ! queue ! fakesink name=fakesink enable-last-sample=1", caps))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to create source pipeline: ", err)
 		os.Exit(1)
