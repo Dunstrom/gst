@@ -11,7 +11,7 @@ import (
 
 func takePicture(pipeline *gst.Pipeline, filename string) {
 	fmt.Fprintln(os.Stdout, "Setting up a picture pipeline")
-	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc max-bytes=0 ! fakesink")) // videoconvert ! video/x-raw, format=(string)RGB, width=(int)320, height=(int)240, framerate=(fraction)30/1, multiview-mode=(string)mono, pixel-aspect-ratio=(fraction)1/1, interlace-mode=(string)progressive ! pngenc snapshot=1 ! filesink location=%s", filename))
+	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc max-bytes=0 ! video/x-raw, format=(string)RGB, width=(int)320, height=(int)240, framerate=(fraction)30/1, multiview-mode=(string)mono, pixel-aspect-ratio=(fraction)1/1, interlace-mode=(string)progressive  ! videoconvert ! pngenc snapshot=1 ! filesink location=%s", filename))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to create pipeline: ", err)
 		os.Exit(1)
