@@ -23,53 +23,48 @@ func takePicture(srcPipeline *gst.Pipeline, filename string) {
 		os.Exit(1)
 	}
 
-	// Pull sample
-	fmt.Fprintln(os.Stdout, "Pulling a sample")
-	sample := fakeSink.GetLastSample()
-	if sample == nil {
-		fmt.Fprintln(os.Stderr, "Failed to pull sample from fakesink")
-		os.Exit(1)
-	}
-	fmt.Fprintf(os.Stdout, "Sample caps: %s \n", sample.GetCaps().String())
-	bufferList := sample.GetBufferList()
-	if bufferList != nil {
-		fmt.Fprintf(os.Stdout, "Found sample buffer list with length: %d in sample\n", bufferList.Length())
-	}
-	buffer := sample.GetBuffer().DeepCopy()
-	fmt.Fprintf(os.Stdout, "Size of buffer in sample %v\n", buffer.GetSize())
-
-	// Ready picture pipeline
-	fmt.Fprintln(os.Stdout, "Ready the picture pipeline")
-	picturePipeline.SetState(gst.STATE_READY)
-	time.Sleep(time.Second)
-
-	// Push sample
-	fmt.Fprintln(os.Stdout, "Pushing the sample")
-	res := appSrc.PushBuffer(buffer)
-	for {
-		if res != gst.GST_FLOW_FLUSHING {
-			break
-		}
-		fmt.Fprintln(os.Stdout, "Failed to push sample on flushing pad, waiting and trying again")
-		time.Sleep(time.Millisecond * 100)
-		res = appSrc.PushBuffer(buffer)
-	}
-	if res != gst.GST_FLOW_OK {
-		fmt.Fprintf(os.Stdout, "Failed to push buffer with error code %d\n", res)
-	}
-	fmt.Fprintf(os.Stdout, "Pushed sample with res %d\n", res)
-
 	// Start the picture pipeline
 	fmt.Fprintln(os.Stdout, "Started the picture pipeline")
 	picturePipeline.SetState(gst.STATE_PLAYING)
 
+	for {
+		// Pull sample
+		fmt.Fprintln(os.Stdout, "Pulling a sample")
+		sample := fakeSink.GetLastSample()
+		if sample == nil {
+			fmt.Fprintln(os.Stderr, "Failed to pull sample from fakesink")
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stdout, "Sample caps: %s \n", sample.GetCaps().String())
+		bufferList := sample.GetBufferList()
+		if bufferList != nil {
+			fmt.Fprintf(os.Stdout, "Found sample buffer list with length: %d in sample\n", bufferList.Length())
+		}
+		buffer := sample.GetBuffer().DeepCopy()
+		fmt.Fprintf(os.Stdout, "Size of buffer in sample %v\n", buffer.GetSize())
+
+		// Push sample
+		fmt.Fprintln(os.Stdout, "Pushing the sample")
+		res := appSrc.PushBuffer(buffer)
+		if res == gst.GST_FLOW_EOS || res == gst.GST_FLOW_OK {
+			break
+		} else if res == gst.GST_FLOW_FLUSHING {
+			time.Sleep(time.Millisecond * 100)
+		} else if res == gst.GST_FLOW_ERROR {
+			fmt.Fprintln(os.Stderr, "Error pushing the sample")
+			os.Exit(1)
+		} else {
+			fmt.Fprintf(os.Stderr, "Unknown return from PushBuffer %d \n", res)
+		}
+	}
+
 	// Done
-	fmt.Fprintf(os.Stdout, "Took picture of pipeline stored at %s\n", filename)
+	fmt.Fprintf(os.Stdout, "Took picture of pipeline stored at %s \n", filename)
 }
 
 func main() {
 	fmt.Fprintln(os.Stdout, "Setting up source pipeline")
-	srcPipeline, err := gst.ParseLaunch("videotestsrc ! tee name=t ! fakesink name=fakesink enable-last-sample=1 t. ! autovideosink") // video/x-raw, framerate=(fraction)5/1 ! fakesink name=fakesink enable-last-sample=1") // t. ! queue ! videoflip method=clockwise ! autovideosink") //")
+	srcPipeline, err := gst.ParseLaunch("videotestsrc pattern=black ! tee name=t ! fakesink name=fakesink enable-last-sample=1 t. ! autovideosink") // video/x-raw, framerate=(fraction)5/1 ! fakesink name=fakesink enable-last-sample=1") // t. ! queue ! videoflip method=clockwise ! autovideosink") //")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to create source pipeline: ", err)
 		os.Exit(1)
@@ -78,6 +73,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Failed to start source pipeline")
 		os.Exit(1)
 	}
-	takePicture(srcPipeline, "picture.png")
+	time.Sleep(time.Second)
+	go takePicture(srcPipeline, "picture.png")
 	glib.NewMainLoop(nil).Run()
 }
