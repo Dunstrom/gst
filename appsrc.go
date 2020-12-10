@@ -24,6 +24,7 @@ const (
 	GST_FLOW_NOT_NEGOTIATED = FlowReturn(C.GST_FLOW_NOT_NEGOTIATED)
 	GST_FLOW_ERROR          = FlowReturn(C.GST_FLOW_ERROR)
 	GST_FLOW_NOT_SUPPORTED  = FlowReturn(C.GST_FLOW_NOT_SUPPORTED)
+	GST_FLOW_EOS            = FlowReturn(C.GST_FLOW_EOS)
 )
 
 func (f FlowReturn) String() string {
@@ -40,6 +41,8 @@ func (f FlowReturn) String() string {
 		return "GST_FLOW_ERROR"
 	case GST_FLOW_NOT_SUPPORTED:
 		return "GST_FLOW_NOT_SUPPORTED"
+	case GST_FLOW_EOS:
+		return "GST_FLOW_EOS"
 	default:
 		return fmt.Sprintf("flow error: %d", f)
 	}
