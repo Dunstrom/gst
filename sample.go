@@ -31,3 +31,7 @@ func (s *Sample) Unref() {
 func (s *Sample) GetCaps() *Caps {
 	return (*Caps)(C.gst_sample_get_caps(s.g()))
 }
+
+func (s *Sample) GetBufferList() *BufferList {
+	return (*BufferList)(C.gst_sample_get_buffer_list(s.g()))
+}
