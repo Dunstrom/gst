@@ -17,6 +17,7 @@ import "C"
 
 type FlowReturn C.GstFlowReturn
 
+// Read more about flow returns here https://gstreamer.freedesktop.org/documentation/gstreamer/gstpad.html?gi-language=c#GstFlowReturn
 const (
 	GST_FLOW_OK             = FlowReturn(C.GST_FLOW_OK)
 	GST_FLOW_FLUSHING       = FlowReturn(C.GST_FLOW_FLUSHING)
@@ -74,8 +75,8 @@ func (a *AppSrc) EOS() error {
 	return nil
 }
 
-func (b *AppSrc) PushBuffer(buffer *Buffer) int {
-	return (int)(C.gst_app_src_push_buffer((*C.GstAppSrc)(b.g()), (*C.GstBuffer)(buffer.GstBuffer)))
+func (b *AppSrc) PushBuffer(buffer *Buffer) FlowReturn {
+	return (FlowReturn)(C.gst_app_src_push_buffer((*C.GstAppSrc)(b.g()), (*C.GstBuffer)(buffer.GstBuffer)))
 }
 
 func (a *AppSrc) Write(d []byte) (int, error) {
