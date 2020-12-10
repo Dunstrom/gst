@@ -21,34 +21,41 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 		fmt.Fprintln(os.Stderr, "Failed to start picture pipeline")
 		os.Exit(1)
 	}
-	fmt.Fprintln(os.Stdout, "Started the picture pipeline")
-	time.Sleep(time.Second * 2)
-	for i := 0; i < 10; i += 1 {
-		fmt.Fprintln(os.Stdout, "Pulling a sample")
-		sample := fakeSink.GetLastSample()
-		fmt.Fprintf(os.Stdout, "Sample caps: %s\n", sample.GetCaps().String())
-		bufferList := sample.GetBufferList()
-		if bufferList != nil {
-			fmt.Fprintf(os.Stdout, "Found sample buffer list with length: %d in sample\n", bufferList.Length())
-		}
 
-		if sample == nil {
-			fmt.Fprintln(os.Stderr, "Failed to pull sample from fakesink")
-			return
-		}
-		buffer := sample.GetBuffer().DeepCopy()
-		fmt.Fprintf(os.Stdout, "Size of buffer in sample %v\n", buffer.GetSize())
-		fmt.Fprintln(os.Stdout, "Pushing the sample")
-		res := appSrc.PushBuffer(buffer)
-		if res != gst.GST_FLOW_OK {
-			fmt.Fprintf(os.Stdout, "Failed to push buffer with error code %d\n", res)
-		}
-		fmt.Fprintf(os.Stdout, "Pushed sample with res %d\n", res)
-		state, _, _ := pipeline.GetState(1000)
-		if state != gst.STATE_PLAYING {
-			break
-		}
+	// Pull sample
+	fmt.Fprintln(os.Stdout, "Pulling a sample")
+	sample := fakeSink.GetLastSample()
+	if sample == nil {
+		fmt.Fprintln(os.Stderr, "Failed to pull sample from fakesink")
+		return
 	}
+	fmt.Fprintf(os.Stdout, "Sample caps: %s\n", sample.GetCaps().String())
+	bufferList := sample.GetBufferList()
+	if bufferList != nil {
+		fmt.Fprintf(os.Stdout, "Found sample buffer list with length: %d in sample\n", bufferList.Length())
+	}
+	buffer := sample.GetBuffer().DeepCopy()
+	fmt.Fprintf(os.Stdout, "Size of buffer in sample %v\n", buffer.GetSize())
+
+	// Stop src pipeline
+	pipeline.SetState(gst.STATE_NULL)
+	time.Sleep(time.Second * 2)
+	fmt.Fprintln(os.Stdout, "Stopped pipeline")
+
+	// Start picture pipeline
+	fmt.Fprintln(os.Stdout, "Started the picture pipeline")
+	picturePipeline.SetState(gst.STATE_PLAYING)
+	time.Sleep(time.Second * 2)
+
+	// Push sample
+	fmt.Fprintln(os.Stdout, "Pushing the sample")
+	res := appSrc.PushBuffer(buffer)
+	if res != gst.GST_FLOW_OK {
+		fmt.Fprintf(os.Stdout, "Failed to push buffer with error code %d\n", res)
+	}
+	fmt.Fprintf(os.Stdout, "Pushed sample with res %d\n", res)
+
+	// Done
 	fmt.Fprintf(os.Stdout, "Took picture of pipeline stored at %s\n", filename)
 }
 
