@@ -4,13 +4,14 @@ import "C"
 import (
 	"fmt"
 	"github.com/Dunstrom/gst"
+	"github.com/ziutek/glib"
 	"os"
 	"time"
 )
 
 func takePicture(pipeline *gst.Pipeline, filename string) {
 	fmt.Fprintln(os.Stdout, "Setting up a picture pipeline")
-	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc max-bytes=0 ! videoconvert !video/x-raw, format=(string)RGB, width=(int)320, height=(int)240, framerate=(fraction)30/1, multiview-mode=(string)mono, pixel-aspect-ratio=(fraction)1/1, interlace-mode=(string)progressive ! pngenc snapshot=1 ! filesink location=%s", filename))
+	picturePipeline, err := gst.ParseLaunch(fmt.Sprintf("appsrc name=appsrc max-bytes=0 ! fakesink")) // videoconvert ! video/x-raw, format=(string)RGB, width=(int)320, height=(int)240, framerate=(fraction)30/1, multiview-mode=(string)mono, pixel-aspect-ratio=(fraction)1/1, interlace-mode=(string)progressive ! pngenc snapshot=1 ! filesink location=%s", filename))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to create pipeline: ", err)
 		os.Exit(1)
@@ -39,13 +40,13 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 
 	// Stop src pipeline
 	pipeline.SetState(gst.STATE_NULL)
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second)
 	fmt.Fprintln(os.Stdout, "Stopped pipeline")
 
-	// Start picture pipeline
-	fmt.Fprintln(os.Stdout, "Started the picture pipeline")
-	picturePipeline.SetState(gst.STATE_PLAYING)
-	time.Sleep(time.Second * 2)
+	// Pause picture pipeline
+	fmt.Fprintln(os.Stdout, "Paused the picture pipeline")
+	picturePipeline.SetState(gst.STATE_PAUSED)
+	time.Sleep(time.Second)
 
 	// Push sample
 	fmt.Fprintln(os.Stdout, "Pushing the sample")
@@ -54,6 +55,10 @@ func takePicture(pipeline *gst.Pipeline, filename string) {
 		fmt.Fprintf(os.Stdout, "Failed to push buffer with error code %d\n", res)
 	}
 	fmt.Fprintf(os.Stdout, "Pushed sample with res %d\n", res)
+
+	// Start the picture pipeline
+	fmt.Fprintln(os.Stdout, "Started the picture pipeline")
+	picturePipeline.SetState(gst.STATE_PLAYING)
 
 	// Done
 	fmt.Fprintf(os.Stdout, "Took picture of pipeline stored at %s\n", filename)
@@ -70,4 +75,5 @@ func main() {
 		os.Exit(1)
 	}
 	takePicture(pipeline, "picture.png")
+	glib.NewMainLoop(nil).Run()
 }
