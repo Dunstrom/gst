@@ -7,6 +7,7 @@ import "C"
 
 import (
 	"github.com/ziutek/glib"
+	"reflect"
 	"unsafe"
 )
 
@@ -15,5 +16,9 @@ type Sink struct {
 }
 
 func (s *Sink) GetLastSample() *Sample {
-	return (*Sample)(unsafe.Pointer(s.GetProperty("last-sample").(glib.Pointer)))
+	sample := s.GetProperty("last-sample")
+	if reflect.TypeOf(sample) == nil {
+		return nil
+	}
+	return (*Sample)(unsafe.Pointer(sample.(glib.Pointer)))
 }
